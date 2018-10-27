@@ -6,6 +6,7 @@ PLAYER_COLUMNS = ['player_name', 'game_id', 'num_players', 'position_played',
                   'pre_flop_actions', 'pre_turn_actions', 'pre_river_actions',
                   'showdown_actions', 'intial_stack', 'pot_input_amount',
                   'pot_winnings_amount', 'card1', 'card2']
+HOLDEM_FOLDER = ''
 
 try:
     from settings_local import *

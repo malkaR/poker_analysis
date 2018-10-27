@@ -199,6 +199,9 @@ if __name__ == '__main__':
     parser.add_argument('-p', '--processes', dest='number_of_procs',
                         type=int, default=1,
                         help='number of processes to use')
+    parser.add_argument('-g', '--graph-only', dest='graph_only',
+                        action='store_true', default=False,
+                        help='aggregate data to generate a graph from previously saved data')
     options = parser.parse_args()
 
     if options.verbose:
@@ -209,20 +212,21 @@ if __name__ == '__main__':
     if options.time_it:
         start = time.time()
 
-    if options.number_of_procs > 1:
-        num = options.number_of_procs
-        with multiprocessing.Pool(processes=num) as pool:
-            results = []
+    if not options.graph_only:
+        if options.number_of_procs > 1:
+            num = options.number_of_procs
+            with multiprocessing.Pool(processes=num) as pool:
+                results = []
+                for year in HOLDEM_YEARS:
+                    results.append(pool.apply_async(
+                        MonthlyData.run_multiple_months,
+                        (HOLDEM_FOLDER, year, HOLDEM_MONTHS, PLAYER_COLUMNS)))
+                    for res in results:
+                        res.get()
+        else:
             for year in HOLDEM_YEARS:
-                results.append(pool.apply_async(
-                    MonthlyData.run_multiple_months,
-                    (HOLDEM_FOLDER, year, HOLDEM_MONTHS, PLAYER_COLUMNS)))
-                for res in results:
-                    res.get()
-    else:
-        for year in HOLDEM_YEARS:
-            MonthlyData.run_multiple_months(
-                HOLDEM_FOLDER, year, HOLDEM_MONTHS, PLAYER_COLUMNS)
+                MonthlyData.run_multiple_months(
+                    HOLDEM_FOLDER, year, HOLDEM_MONTHS, PLAYER_COLUMNS)
 
     df = YearlyData.run_multiple_years(
         HOLDEM_FOLDER, HOLDEM_YEARS, HOLDEM_MONTHS, DATA_COLUMNS)
@@ -232,10 +236,11 @@ if __name__ == '__main__':
         _log.info('elapsed time: {0}'.format(end - start))
 
     with PdfPages('multipage_pdf.pdf') as pdf:
-        df.plot()
+        df_largest = df.nlargest(40, 'monetary_gain')
+        df_largest.plot()
         pdf.savefig()
         mpl.pyplot.close()
 
-        df.plot(kind='scatter', x='num_wins', y='monetary_gain')
+        df_largest.plot(kind='scatter', x='num_wins', y='monetary_gain')
         pdf.savefig()
         mpl.pyplot.close()
