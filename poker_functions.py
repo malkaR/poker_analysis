@@ -22,9 +22,6 @@ class PickleDataFrame:
     Base class to read and process a set of data files
     for poker game data.
     """
-    pickle_path = ''
-    pickle_file_name = ''
-
     def __init__(self, *args, **kwargs):
         super().__init__()
         self.pickle_path = kwargs.get('pickle_path', '')
@@ -59,8 +56,6 @@ class PickleDataFrame:
 
 class MonthlyData(PickleDataFrame):
     """Read and process a set of files for a month's worth of poker data"""
-    columns = []
-
     def __init__(self, data_folder, year, month, columns):
         self.read_path = os.path.join(data_folder, year + month)
         self.columns = columns
@@ -127,8 +122,6 @@ class YearlyData(PickleDataFrame):
     Read a set of monthly data from pickled files and
     combine to produce one dataframe
     """
-    columns = []
-
     def __init__(self, data_folder, year, months, columns):
         self.read_path = os.path.join(data_folder, year)
         super().__init__(pickle_path=self.read_path,
@@ -242,5 +235,9 @@ if __name__ == '__main__':
         mpl.pyplot.close()
 
         df_largest.plot(kind='scatter', x='num_wins', y='monetary_gain')
+        pdf.savefig()
+        mpl.pyplot.close()
+
+        df_largest.plot(kind='scatter', x='game_count', y='num_wins')
         pdf.savefig()
         mpl.pyplot.close()
