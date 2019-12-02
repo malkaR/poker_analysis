@@ -8,8 +8,6 @@ import pandas as pd
 from poker_functions import MonthlyData, YearlyData
 from settings import DATA_COLUMNS, PLAYER_COLUMNS, TEST_HOLDEM_FOLDER
 
-# TODO: check for non existent files, bad input data and other edge cases
-
 
 class TestProcessGameData(unittest.TestCase):
     TEST_FOLDER = TEST_HOLDEM_FOLDER
@@ -22,6 +20,14 @@ class TestProcessGameData(unittest.TestCase):
             self.TEST_FOLDER, self.TEST_YEAR, '04', PLAYER_COLUMNS)
         self.monthly_data_two = MonthlyData(
             self.TEST_FOLDER, self.TEST_YEAR, '04', PLAYER_COLUMNS)
+        self.row_data = {
+            'player_name': 'rimedio',
+            'game_id': 797829948,
+            'num_players': 5,
+            'intial_stack': 1000,
+            'pot_input_amount': 30,
+            'pot_winnings_amount': 70
+        }
         self.player_data = {
             'player_name': ['deadhead', 'justnuts', 'rimedio'],
             'game_count': [4, 4, 6],
@@ -37,10 +43,20 @@ class TestProcessGameData(unittest.TestCase):
                     if os.path.exists(os.path.join(root, file)):
                         os.remove(os.path.join(root, file))
 
+    def test_nonexistent_file(self):
+        data = MonthlyData(
+            self.TEST_FOLDER, self.TEST_YEAR, '07', PLAYER_COLUMNS)
+        df = data.read_files()
+        df_empty = pd.DataFrame(columns=PLAYER_COLUMNS)
+        pd.testing.assert_frame_equal(df, df_empty)
+
     def test_read_month_data(self):
         df = self.monthly_data.read_files()
         self.assertEqual(df.shape[0], 14)
-        # TODO assert contents of data
+        row = df.iloc[0]
+        for key, val in self.row_data.items():
+            self.assertEqual(row[key], val)
+        self.assertTrue(pd.isnull(row['card1']))
 
     def test_pickle_unpickle_paths(self):
         df1 = self.monthly_data.read_files()
@@ -63,8 +79,6 @@ class TestProcessGameData(unittest.TestCase):
             self.assertTrue(os.path.exists(
                 os.path.join(
                     self.TEST_FOLDER, os.path.join(self.TEST_YEAR, month))))
-        # TODO: check contents of pickled files can be read
-        # back to a dataframe
 
     def setup_year_data(self):
         df = self.monthly_data.read_files()

@@ -81,7 +81,7 @@ class MonthlyData(PickleDataFrame):
                         names=self.columns)
                     df_list.append(df_temp)
         if df_list:
-            return pd.concat(df_list, ignore_index=True)  #  TODO: is ignore_index needed?
+            return pd.concat(df_list)
         return pd.DataFrame(columns=self.columns)
 
     def extract_data(self, df):
