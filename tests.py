@@ -5,15 +5,14 @@ import unittest
 import numpy as np
 import pandas as pd
 
-from poker_functions import (
-    MonthlyData, YearlyData)
-from settings import DATA_COLUMNS, PLAYER_COLUMNS
+from poker_functions import MonthlyData, YearlyData
+from settings import DATA_COLUMNS, PLAYER_COLUMNS, TEST_HOLDEM_FOLDER
 
 # TODO: check for non existent files, bad input data and other edge cases
 
 
 class TestProcessGameData(unittest.TestCase):
-    TEST_FOLDER = '/home/malkacod/projects/poker_code/poker_code/test_data'
+    TEST_FOLDER = TEST_HOLDEM_FOLDER
     TEST_YEARS = '1995 1996'.split()
     TEST_MONTHS = '04 05'.split()
 
